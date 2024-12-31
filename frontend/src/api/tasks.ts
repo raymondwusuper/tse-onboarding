@@ -94,3 +94,18 @@ export async function getTask(id: string): Promise<APIResult<Task>> {
     return handleAPIError(error);
   }
 }
+
+export async function getAllTasks(): Promise<APIResult<Task[]>> {
+  try {
+    const response = await fetch("http://127.0.0.1:3001/api/tasks");
+    if (!response.ok) {
+      throw new Error("Failed to fetch tasks");
+    }
+    const data = await response.json();
+    const tasks: Task[] = data.map((task: any) => parseTask(task));
+
+    return { success: true, data: tasks };
+  } catch (error) {
+    return handleAPIError(error);
+  }
+}
