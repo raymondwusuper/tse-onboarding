@@ -109,3 +109,29 @@ export async function getAllTasks(): Promise<APIResult<Task[]>> {
     return handleAPIError(error);
   }
 }
+
+export async function updateTask(task: UpdateTaskRequest): Promise<APIResult<Task>> {
+  try {
+      const response = await fetch(`http://127.0.0.1:3001/api/task/${task._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: task.title,
+          description: task.description,
+          isChecked: task.isChecked,
+          dateCreated: task.dateCreated.toISOString(),
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update task");
+      }
+  
+      const json = (await response.json()) as TaskJSON;
+      return { success: true, data: parseTask(json) };
+  } catch (error) {
+    return handleAPIError(error);
+  }
+}

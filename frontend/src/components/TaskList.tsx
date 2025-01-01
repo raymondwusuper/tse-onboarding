@@ -33,7 +33,7 @@ export function TaskList({ title }: TaskListProps) {
       <div className={styles.itemContainer}>
         {tasks.length === 0 ? (
           <p className={styles.emptyMessage}>No tasks yet. Add one above to get started.</p>
-        ) : (tasks.map((task) => ( <li key={task._id} className={styles.taskItem}>
+        ) : (tasks.map((task) => ( <li key={task._id}>
             <TaskItem task={task} />
           </li>
         )))}
