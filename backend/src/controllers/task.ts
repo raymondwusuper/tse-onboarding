@@ -30,7 +30,7 @@ export const getTask: RequestHandler = async (req, res, next) => {
 
   try {
     // if the ID doesn't exist, then findById returns null
-    const task = await TaskModel.findById(id);
+    const task = await TaskModel.findById(id).populate("assignee");
 
     if (task === null) {
       throw createHttpError(404, "Task not found.");
@@ -49,7 +49,7 @@ export const getTask: RequestHandler = async (req, res, next) => {
 export const createTask: RequestHandler = async (req, res, next) => {
   // extract any errors that were found by the validator
   const errors = validationResult(req);
-  const { title, description, isChecked } = req.body;
+  const { title, description, isChecked, assignee } = req.body;
 
   try {
     // if there are errors, then this function throws an exception
@@ -59,12 +59,14 @@ export const createTask: RequestHandler = async (req, res, next) => {
       title: title,
       description: description,
       isChecked: isChecked,
+      assignee: assignee,
       dateCreated: Date.now(),
     });
 
     // 201 means a new resource has been created successfully
     // the newly created task is sent back to the user
-    res.status(201).json(task);
+    const newTask = await TaskModel.findById(task._id).populate("assignee");
+    res.status(201).json(newTask);
   } catch (error) {
     next(error);
   }
@@ -84,7 +86,7 @@ export const removeTask: RequestHandler = async (req, res, next) => {
 
 export const updateTask: RequestHandler = async (req, res, next) => {
   const { id } = req.params;
-  const { _id, title, description, isChecked } = req.body;
+  const { _id, title, description, isChecked, assignee } = req.body;
 
   try {
     const errors = validationResult(req);
@@ -94,9 +96,9 @@ export const updateTask: RequestHandler = async (req, res, next) => {
     }
     const updatedTask = await TaskModel.findByIdAndUpdate(
       id,
-      { title, description, isChecked },
+      { title, description, isChecked, assignee },
       { new: true } 
-    );
+    ).populate("assignee");
     if (!updatedTask) {
       return res.status(404).json({ error: "Task not found." });
     }
